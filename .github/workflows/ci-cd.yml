@@ -16,7 +16,7 @@ jobs:
       actions: write
 
     env:
-      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/devops-hola-mundo
+      DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
 
     steps:
       - name: Checkout
@@ -49,7 +49,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.DOCKER_USER }}/devops-hola-mundo
           tags: |
             type=raw,value=latest
             type=sha
