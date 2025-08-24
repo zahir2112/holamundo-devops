@@ -15,8 +15,9 @@ jobs:
       packages: write
       actions: write
 
+    # Fallback por si el secret no está disponible
     env:
-      DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      IMAGE_OWNER: zahir2112
 
     steps:
       - name: Checkout
@@ -37,19 +38,24 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      # Login a Docker Hub usando el secret si existe, o el fallback
       - name: Docker login
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME || env.IMAGE_OWNER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Definir la imagen (usa secret si existe, o el fallback)
+      - name: Define image name
+        run: echo "IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME || env.IMAGE_OWNER }}/devops-hola-mundo" >> $GITHUB_ENV
 
       - name: Extract Docker metadata
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_USER }}/devops-hola-mundo
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha
